@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TidyBatch: bulk rename files without the fear</title>
+<meta name="description" content="TidyBatch renames files in bulk with a dry-run preview, collision-proof renames and one-command undo. Free and open source, with a Pro version for organizing and de-duplicating.">
+<link rel="canonical" href="https://tidybatch.github.io/">
+<link rel="icon" href="/assets/avatar.png">
+<link rel="stylesheet" href="/assets/style.css">
+<meta property="og:title" content="TidyBatch: bulk rename files without the fear">
+<meta property="og:description" content="Preview every change, apply it, undo it with one command. Free and open source.">
+<meta property="og:image" content="https://tidybatch.github.io/assets/social.png">
+<meta property="og:url" content="https://tidybatch.github.io/">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"SoftwareApplication","name":"TidyBatch","applicationCategory":"UtilitiesApplication","operatingSystem":"Windows, macOS, Linux","url":"https://tidybatch.github.io/","codeRepository":"https://github.com/tidybatch/tidybatch","license":"https://opensource.org/licenses/MIT","offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"}}
+</script>
+</head>
+<body>
+<header class="site"><div class="wrap">
+  <a class="brand" href="/"><img src="/assets/avatar.png" alt="">TidyBatch</a>
+  <nav><a href="/guides/">Guides</a><a href="https://github.com/tidybatch/tidybatch">GitHub</a><a href="https://whop.com/tidybatch/bulk-file-renamer/?utm_source=site&amp;utm_campaign=tidybatch">Pro</a></nav>
+</div></header>
+<main><div class="wrap">
+  <h1>Bulk rename files without the fear.</h1>
+  <p class="lead">Preview every change, apply it, and undo it with one command. One small, open-source tool for Windows, macOS and Linux.</p>
+  <img class="demo" src="/assets/demo.gif" width="1000" height="560" alt="Terminal demo: TidyBatch previews new file names, applies them, then restores the originals with undo">
+  <div class="cta">
+    <a class="btn primary" href="https://github.com/tidybatch/tidybatch">Get it free on GitHub</a>
+    <a class="btn ghost" href="/guides/bulk-rename-files-safely/">Read the guide</a>
+  </div>
+  <pre><code>pipx install git+https://github.com/tidybatch/tidybatch
+
+tidybatch rename ~/Downloads --slug --lower           # preview only
+tidybatch rename ~/Downloads --slug --lower --apply   # do it
+tidybatch undo ~/Downloads                            # changed your mind</code></pre>
+
+  <h2>Why it's safe</h2>
+  <div class="cards">
+    <div class="card"><h3>Dry run by default</h3><p>Nothing changes until you add <code>--apply</code>.</p></div>
+    <div class="card"><h3>One-command undo</h3><p>Every applied run is journaled, so <code>undo</code> puts every file back.</p></div>
+    <div class="card"><h3>Never overwrites</h3><p>Two-phase renames make chains like 1→2, 2→3 safe. Clashes get <code>_1</code>, <code>_2</code>.</p></div>
+  </div>
+
+  <h2>Guides</h2>
+  <div class="cards">
+    <div class="card"><a href="/guides/bulk-rename-files-safely/"><h3>How to bulk rename files safely</h3></a><p>Windows, macOS and Linux, with the free built-in options first.</p></div>
+    <div class="card"><a href="/guides/undo-bulk-rename/"><h3>Can you undo a bulk rename?</h3></a><p>What actually works after the fact, and how to make sure you never need it.</p></div>
+    <div class="card"><a href="/guides/add-date-to-file-names/"><h3>Add the date to file names</h3></a><p>Modified date vs. "date taken", with PowerShell, bash and exiftool.</p></div>
+  </div>
+
+  <h2>Free vs. Pro</h2>
+  <div class="table-wrap"><table>
+    <tr><th></th><th>Core (free, MIT)</th><th>Pro (one-time)</th></tr>
+    <tr><td>Rename: templates, counters, dates, regex, clean names</td><td class="ok">✓</td><td class="ok">✓</td></tr>
+    <tr><td>Preview, collision-proof apply, undo</td><td class="ok">✓</td><td class="ok">✓</td></tr>
+    <tr><td><code>organize</code>: sort into folders by type, date or extension</td><td>—</td><td class="ok">✓</td></tr>
+    <tr><td><code>dedupe</code>: exact duplicates by content, moved aside (never deleted)</td><td>—</td><td class="ok">✓</td></tr>
+    <tr><td>Ready-to-run apps for Windows and Linux</td><td>—</td><td class="ok">✓</td></tr>
+  </table></div>
+  <p><a href="https://whop.com/tidybatch/bulk-file-renamer/?utm_source=site&amp;utm_campaign=tidybatch">See TidyBatch Pro →</a></p>
+</div></main>
+<footer class="site"><div class="wrap">
+  <span>TidyBatch: small file tools you can trust.</span>
+  <span><a href="https://github.com/tidybatch/tidybatch">GitHub</a> · <a href="https://github.com/tidybatch/tidybatch/issues">Report a bug</a></span>
+</div></footer>
+</body>
+</html>

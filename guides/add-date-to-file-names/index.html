@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How to add the date to file names in bulk · TidyBatch</title>
+<meta name="description" content="Prefix hundreds of files with a date like 2024-08-12_name.pdf: modified date vs. photo 'date taken', with PowerShell, bash, exiftool and TidyBatch, with a preview first.">
+<link rel="canonical" href="https://tidybatch.github.io/guides/add-date-to-file-names/">
+<link rel="icon" href="/assets/avatar.png">
+<link rel="stylesheet" href="/assets/style.css">
+<meta property="og:title" content="How to add the date to file names in bulk">
+<meta property="og:image" content="https://tidybatch.github.io/assets/social.png">
+<meta name="twitter:card" content="summary_large_image">
+</head>
+<body>
+<header class="site"><div class="wrap">
+  <a class="brand" href="/"><img src="/assets/avatar.png" alt="">TidyBatch</a>
+  <nav><a href="/guides/">Guides</a><a href="https://github.com/tidybatch/tidybatch">GitHub</a><a href="https://whop.com/tidybatch/bulk-file-renamer/?utm_source=site_guide_date&amp;utm_campaign=tidybatch">Pro</a></nav>
+</div></header>
+<main><div class="wrap">
+<h1>How to add the date to file names in bulk</h1>
+<p class="lead">Turn <code>invoice.pdf</code> into <code>2024-08-12_invoice.pdf</code> for hundreds of files at once, so they sort by date anywhere. Use <code>YYYY-MM-DD</code>: it's the only format that sorts correctly as plain text.</p>
+
+<h2>First, pick the right date</h2>
+<div class="table-wrap"><table>
+  <tr><th>Date</th><th>What it is</th><th>Use it for</th></tr>
+  <tr><td>Modified</td><td>When the file was last changed. Copying between drives or downloading can reset it.</td><td>Documents, invoices, exports</td></tr>
+  <tr><td>Date taken (EXIF)</td><td>Stored inside photos by the camera or phone. Survives copying.</td><td>Photos and many videos</td></tr>
+  <tr><td>Today</td><td>When you run the rename.</td><td>"Received on" batches</td></tr>
+</table></div>
+
+<h2>Windows: PowerShell (modified date)</h2>
+<pre><code># Preview with -WhatIf; remove it to apply
+Get-ChildItem -File | Rename-Item -NewName { $_.LastWriteTime.ToString('yyyy-MM-dd') + '_' + $_.Name } -WhatIf</code></pre>
+
+<h2>Linux: bash (modified date)</h2>
+<p>With GNU <code>date</code> (standard on Linux), <code>date -r FILE</code> prints the file's modification time. <code>mv -n</code> never overwrites:</p>
+<pre><code># Preview (echo), then remove "echo" to run
+for f in *; do [ -f "$f" ] &amp;&amp; echo mv -n -- "$f" "$(date -r "$f" +%F)_$f"; done</code></pre>
+
+<h2>Photos: exiftool (date taken)</h2>
+<p>For photos, the free <a href="https://exiftool.org/">ExifTool</a> is the standard. It reads the real "date taken" and its <code>%-c</code> adds a counter when two photos share the same second:</p>
+<pre><code># Preview: show the new names without renaming
+exiftool -d '%Y-%m-%d_%H%M%S%%-c.%%e' '-TestName&lt;DateTimeOriginal' .
+
+# Apply
+exiftool -d '%Y-%m-%d_%H%M%S%%-c.%%e' '-FileName&lt;DateTimeOriginal' .</code></pre>
+
+<h2>Any OS: TidyBatch (modified date, with undo)</h2>
+<p><a href="https://github.com/tidybatch/tidybatch">TidyBatch</a> uses Python-style date formats in its template. It previews by default and can undo afterwards:</p>
+<pre><code>tidybatch rename ./invoices -t "{date:%Y-%m-%d}_{stem}{ext}"           # preview
+tidybatch rename ./invoices -t "{date:%Y-%m-%d}_{stem}{ext}" --apply   # apply
+tidybatch undo ./invoices                                             # revert</code></pre>
+<p>Other fields work too, e.g. a counter in date order: <code>tidybatch rename ./scans --sort date -t "scan_{n:03}{ext}"</code>. TidyBatch doesn't read EXIF yet, so for "date taken" use exiftool above.</p>
+<p><a href="/guides/undo-bulk-rename/">Related: can you undo a bulk rename? →</a></p>
+</div></main>
+<footer class="site"><div class="wrap">
+  <span>TidyBatch: small file tools you can trust.</span>
+  <span><a href="https://github.com/tidybatch/tidybatch">GitHub</a> · <a href="https://github.com/tidybatch/tidybatch/issues">Report a bug</a></span>
+</div></footer>
+</body>
+</html>
