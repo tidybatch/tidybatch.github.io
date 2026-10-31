@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How to bulk rename files safely (Windows, macOS, Linux) · TidyBatch</title>
+<meta name="description" content="The safe way to rename many files at once on Windows, macOS and Linux: built-in options, PowerToys PowerRename, PowerShell -WhatIf, rename -n, and the collision trap that silently overwrites files.">
+<link rel="canonical" href="https://tidybatch.github.io/guides/bulk-rename-files-safely/">
+<link rel="icon" href="/assets/avatar.png">
+<link rel="stylesheet" href="/assets/style.css">
+<meta property="og:title" content="How to bulk rename files safely (Windows, macOS, Linux)">
+<meta property="og:image" content="https://tidybatch.github.io/assets/social.png">
+<meta name="twitter:card" content="summary_large_image">
+</head>
+<body>
+<header class="site"><div class="wrap">
+  <a class="brand" href="/"><img src="/assets/avatar.png" alt="">TidyBatch</a>
+  <nav><a href="/guides/">Guides</a><a href="https://github.com/tidybatch/tidybatch">GitHub</a><a href="https://whop.com/tidybatch/bulk-file-renamer/?utm_source=site_guide_safely&amp;utm_campaign=tidybatch">Pro</a></nav>
+</div></header>
+<main><div class="wrap">
+<h1>How to bulk rename files safely</h1>
+<p class="lead">Renaming hundreds of files takes seconds. Undoing a bad rename can be impossible. Here's how to do it on Windows, macOS and Linux without losing anything, with the free built-in options first.</p>
+
+<h2>The three rules</h2>
+<ol>
+  <li><strong>Preview before you apply.</strong> Every option below has a way to see the result first. Use it.</li>
+  <li><strong>Never let a rename overwrite a file.</strong> If two files end up with the same name, one of them can silently disappear (see <a href="#trap">the trap</a> below).</li>
+  <li><strong>Have a way back.</strong> A backup, a copy of the folder, or a tool with undo.</li>
+</ol>
+
+<h2>Windows</h2>
+<h3>File Explorer (built in)</h3>
+<p>Select the files, press <kbd>F2</kbd>, type a name and press Enter. Windows names them <code>Name (1)</code>, <code>Name (2)</code>, … It's fine for quick numbering, but there's no preview and no pattern support.</p>
+<h3>PowerToys PowerRename (free, from Microsoft)</h3>
+<p>The best free option on Windows. Install <a href="https://learn.microsoft.com/en-us/windows/powertoys/powerrename">Microsoft PowerToys</a>, select files, right-click and choose <em>Rename with PowerRename</em>. You get a live preview, search and replace with regular expressions, numbering and date variables. Because it renames through Explorer, <kbd>Ctrl</kbd>+<kbd>Z</kbd> in Explorer undoes the whole batch right afterwards.</p>
+<h3>PowerShell (built in, scriptable)</h3>
+<p>Add <code>-WhatIf</code> to preview. Nothing is renamed until you remove it:</p>
+<pre><code># Preview: lowercase all .jpg names and replace spaces with underscores
+Get-ChildItem -File *.jpg | Rename-Item -NewName { $_.Name.ToLower() -replace ' ', '_' } -WhatIf
+
+# Looks right? Run the same line without -WhatIf
+Get-ChildItem -File *.jpg | Rename-Item -NewName { $_.Name.ToLower() -replace ' ', '_' }</code></pre>
+<p><code>Rename-Item</code> refuses to replace an existing file. That's good, but in a long batch it means a few files fail halfway through, so read the red errors.</p>
+
+<h2>macOS</h2>
+<h3>Finder (built in)</h3>
+<p>Select the files, right-click and choose <em>Rename…</em>. You can <em>Replace Text</em>, <em>Add Text</em> or apply a <em>Format</em> with a counter, and the dialog shows an example of the result. Use <em>Edit → Undo</em> straight away if it isn't what you wanted.</p>
+<h3>Terminal</h3>
+<p>Use <code>mv -n</code> (no-clobber) in loops so an existing file is never overwritten, and print the commands before you run them:</p>
+<pre><code># Preview (echo only), then remove "echo" to run
+for f in *.JPG; do echo mv -n -- "$f" "${f%.JPG}.jpg"; done</code></pre>
+
+<h2>Linux</h2>
+<p>Most distributions ship a <code>rename</code> command, but there are two different ones (the Perl version and the util-linux version) with different syntax. Run <code>rename --version</code> to see which you have. Both have a dry-run flag, but the util-linux one only prints the plan if you add <code>-v</code>:</p>
+<pre><code># Perl rename (Debian/Ubuntu "rename" package): spaces -&gt; underscores
+rename -n 's/ /_/g' *
+
+# util-linux rename (Arch, Fedora…): replace the first "IMG_" with "photo_"
+rename -nv IMG_ photo_ *
+# `IMG_1.JPG' -&gt; `photo_1.JPG'</code></pre>
+<p>For your own loops, the same <code>mv -n</code> rule applies.</p>
+
+<h2 id="trap">The trap: chains silently overwrite files</h2>
+<p>Say you renumber <code>1.txt, 2.txt, 3.txt</code> to <code>2.txt, 3.txt, 4.txt</code>. A simple loop renames <code>1.txt → 2.txt</code> first. On Linux and macOS a plain <code>mv</code> or Python's <code>os.rename</code> <strong>overwrites the original 2.txt without warning</strong>. On Windows it fails instead, leaving the folder half renamed.</p>
+<p>The fix is to rename in two phases: move every file to a temporary name first, then move each one to its final name. Or rename into a new, empty folder. A related trap: on Windows and macOS, <code>Photo.JPG</code> and <code>photo.jpg</code> are the <em>same</em> file, so collision checks must ignore case.</p>
+
+<h2>A tool that does all of this for you</h2>
+<p><a href="https://github.com/tidybatch/tidybatch">TidyBatch</a> is a free, open-source command-line tool built around these rules. It previews by default, renames in two phases, checks collisions without case and keeps a journal so you can undo with one command:</p>
+<img class="demo" src="/assets/demo.gif" width="1000" height="560" alt="TidyBatch preview, apply and undo in a terminal" loading="lazy">
+<pre><code>tidybatch rename ~/Downloads --slug --lower           # preview
+tidybatch rename ~/Downloads --slug --lower --apply   # apply
+tidybatch undo ~/Downloads                            # back to how it was</code></pre>
+<p>Prefer clicking to typing? On Windows, PowerRename is excellent and free. TidyBatch is for when you want the same command to work on every OS, in scripts, with an undo that survives closing the window.</p>
+<p><a href="/guides/">More guides →</a></p>
+</div></main>
+<footer class="site"><div class="wrap">
+  <span>TidyBatch: small file tools you can trust.</span>
+  <span><a href="https://github.com/tidybatch/tidybatch">GitHub</a> · <a href="https://github.com/tidybatch/tidybatch/issues">Report a bug</a></span>
+</div></footer>
+</body>
+</html>

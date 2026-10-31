@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Can you undo a bulk rename? What actually works · TidyBatch</title>
+<meta name="description" content="Renamed hundreds of files by mistake? What works in Windows Explorer, PowerRename, Lightroom and backups, why it's often too late, and how to make every bulk rename undoable.">
+<link rel="canonical" href="https://tidybatch.github.io/guides/undo-bulk-rename/">
+<link rel="icon" href="/assets/avatar.png">
+<link rel="stylesheet" href="/assets/style.css">
+<meta property="og:title" content="Can you undo a bulk rename? What actually works">
+<meta property="og:image" content="https://tidybatch.github.io/assets/social.png">
+<meta name="twitter:card" content="summary_large_image">
+</head>
+<body>
+<header class="site"><div class="wrap">
+  <a class="brand" href="/"><img src="/assets/avatar.png" alt="">TidyBatch</a>
+  <nav><a href="/guides/">Guides</a><a href="https://github.com/tidybatch/tidybatch">GitHub</a><a href="https://whop.com/tidybatch/bulk-file-renamer/?utm_source=site_guide_undo&amp;utm_campaign=tidybatch">Pro</a></nav>
+</div></header>
+<main><div class="wrap">
+<h1>Can you undo a bulk rename?</h1>
+<p class="lead">Sometimes, if you act immediately. Often, no. Here's what to try right now, in order, and how to make sure the next rename can always be reversed.</p>
+
+<div class="note"><strong>First: stop.</strong> Don't rename, move or delete anything else in that folder. Most undo options only cover the <em>last</em> action.</div>
+
+<h2>1. Windows File Explorer: Ctrl+Z, right now</h2>
+<p>If the rename was done in File Explorer (or with PowerToys PowerRename, which renames through Explorer) and you haven't done anything else since, press <kbd>Ctrl</kbd>+<kbd>Z</kbd> in Explorer, or right-click and choose <em>Undo Rename</em>. Microsoft's own <a href="https://learn.microsoft.com/en-us/windows/powertoys/powerrename">PowerRename documentation</a> says this undoes the whole batch. The catch: only the most recent file operation can be undone. If you've done anything since, it's <a href="https://learn.microsoft.com/en-us/answers/questions/4544917/how-can-i-undue-an-accidental-mass-name-change-to">probably too late</a>.</p>
+
+<h2>2. macOS Finder: Edit → Undo</h2>
+<p>Right after a Finder rename, <em>Edit → Undo</em> (<kbd>⌘</kbd>+<kbd>Z</kbd>) reverses it. Again, it only works while it's still the last action.</p>
+
+<h2>3. Lightroom Classic: rename back from metadata</h2>
+<p>Lightroom keeps each photo's original filename in its metadata. You can't "undo" the batch, but you can rename again with a template that uses the <em>Original Filename</em> token, as <a href="https://community.adobe.com/t5/lightroom-classic-discussions/undo-batch-rename-how/td-p/9965518">described in the Adobe community</a>.</p>
+
+<h2>4. Your rename tool's own undo</h2>
+<p>Dedicated tools differ. Some keep a history you can revert; many only undo the last batch while the program is still open; plenty have no undo at all. Check the tool's menu before closing it.</p>
+
+<h2>5. Backups</h2>
+<p>A backup made before the rename has the old names: Windows File History, macOS Time Machine, or a copy on another drive. Restoring brings back the old names, but also the old <em>contents</em>, so be careful if you edited files since.</p>
+
+<h2>If files were overwritten</h2>
+<p>If two files got the same name and one replaced the other, that's no longer a naming problem: the data itself is gone from that folder. Only backups or file-recovery tools can help, and on SSDs recovery is unlikely. The only real fix is prevention.</p>
+
+<h2>Make every future rename undoable</h2>
+<ol>
+  <li><strong>Preview first:</strong> PowerShell <code>-WhatIf</code>, <code>rename -n</code>, or a tool with a dry run.</li>
+  <li><strong>Never overwrite:</strong> <code>mv -n</code>, or a tool that resolves name clashes instead of replacing files.</li>
+  <li><strong>Keep a journal:</strong> a record of old name → new name that survives closing the program.</li>
+</ol>
+<p><a href="https://github.com/tidybatch/tidybatch">TidyBatch</a> (free, open source) does all three by default. Every applied run writes a journal inside the folder, so this works hours or days later:</p>
+<pre><code>tidybatch rename ./photos -t "holiday_{n:03}{ext}" --apply
+# ...days later...
+tidybatch undo ./photos      # every file goes back to its original name</code></pre>
+<p>Other open-source CLIs with undo history include <a href="https://github.com/neurobin/rnm">rnm</a> and <a href="https://github.com/tareqimbasher/renamex">renamex</a>.</p>
+<p><a href="/guides/bulk-rename-files-safely/">Next: how to bulk rename files safely →</a></p>
+</div></main>
+<footer class="site"><div class="wrap">
+  <span>TidyBatch: small file tools you can trust.</span>
+  <span><a href="https://github.com/tidybatch/tidybatch">GitHub</a> · <a href="https://github.com/tidybatch/tidybatch/issues">Report a bug</a></span>
+</div></footer>
+</body>
+</html>
