@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://tidybatch.github.io/</loc><lastmod>2026-10-31</lastmod></url>
-  <url><loc>https://tidybatch.github.io/guides/</loc><lastmod>2026-10-31</lastmod></url>
+  <url><loc>https://tidybatch.github.io/</loc><lastmod>2026-11-01</lastmod></url>
+  <url><loc>https://tidybatch.github.io/guides/</loc><lastmod>2026-11-01</lastmod></url>
   <url><loc>https://tidybatch.github.io/guides/bulk-rename-files-safely/</loc><lastmod>2026-10-31</lastmod></url>
   <url><loc>https://tidybatch.github.io/guides/undo-bulk-rename/</loc><lastmod>2026-10-31</lastmod></url>
   <url><loc>https://tidybatch.github.io/guides/add-date-to-file-names/</loc><lastmod>2026-11-01</lastmod></url>
   <url><loc>https://tidybatch.github.io/guides/rename-photos-by-date-taken/</loc><lastmod>2026-11-01</lastmod></url>
+  <url><loc>https://tidybatch.github.io/guides/find-duplicate-files/</loc><lastmod>2026-11-01</lastmod></url>
+  <url><loc>https://tidybatch.github.io/guides/organize-downloads-folder/</loc><lastmod>2026-11-01</lastmod></url>
 </urlset>

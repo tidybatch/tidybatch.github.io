@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How to find duplicate files safely (without deleting the wrong copy) · TidyBatch</title>
+<meta name="description" content="Find exact duplicate files and photos on Windows, macOS and Linux with free built-in commands (PowerShell, find + sha256sum), then move the extra copies aside instead of deleting them. Every command tested.">
+<link rel="canonical" href="https://tidybatch.github.io/guides/find-duplicate-files/">
+<link rel="icon" href="/assets/avatar.png">
+<link rel="stylesheet" href="/assets/style.css">
+<meta property="og:title" content="How to find duplicate files safely">
+<meta property="og:image" content="https://tidybatch.github.io/assets/social.png">
+<meta name="twitter:card" content="summary_large_image">
+</head>
+<body>
+<header class="site"><div class="wrap">
+  <a class="brand" href="/"><img src="/assets/avatar.png" alt="">TidyBatch</a>
+  <nav><a href="/guides/">Guides</a><a href="https://github.com/tidybatch/tidybatch">GitHub</a><a href="https://whop.com/tidybatch/bulk-file-renamer/?utm_source=site_guide_dupes&amp;utm_campaign=tidybatch">Pro</a></nav>
+</div></header>
+<main><div class="wrap">
+<h1>How to find duplicate files safely</h1>
+<p class="lead">Phone backups, "copy (1)" downloads and the same folder imported twice: find every exact duplicate, keep one copy of each, and never delete the wrong one.</p>
+
+<div class="note"><strong>Move first, delete later.</strong> Whatever tool you use, move the extra copies to a separate folder, check it, and only then empty it. A duplicate finder that deletes straight away is one wrong click from losing the only copy you wanted.</div>
+
+<h2>How exact duplicate finders work</h2>
+<p>Two files are duplicates when their <em>contents</em> are identical, whatever their names or dates. The fast way to find them:</p>
+<ol>
+  <li><strong>Group by size.</strong> A file with a unique size can't have a duplicate, so most files are never read.</li>
+  <li><strong>Hash the rest</strong> (SHA-256). Same hash means same content.</li>
+  <li><strong>Skip empty files.</strong> They all "match" each other.</li>
+</ol>
+<p>This finds exact copies only. A photo that was resized, edited or re-saved is a different file; for those you need a <em>similar image</em> finder (see Czkawka below).</p>
+
+<h2>Option 1: Windows PowerShell (built in)</h2>
+<p>Open PowerShell, go to the folder (<code>cd $HOME\Pictures</code>) and paste. It only lists the duplicate groups, one blank line between groups, and changes nothing:</p>
+<pre><code>Get-ChildItem -Recurse -File | Where-Object Length -gt 0 |
+  Group-Object Length | Where-Object Count -gt 1 |
+  ForEach-Object { $_.Group | Get-FileHash -Algorithm SHA256 } |
+  Group-Object Hash | Where-Object Count -gt 1 |
+  ForEach-Object { $_.Group.Path; '' }</code></pre>
+<p>Tested in PowerShell 7.4. On a test folder it printed the two copies of <code>report.pdf</code> and the three copies of <code>IMG_1001.jpg</code>, and ignored two different files of the same size and two empty files.</p>
+
+<h2>Option 2: macOS and Linux terminal (built in)</h2>
+<p>In the folder you want to check (Linux; on macOS replace <code>sha256sum</code> with <code>shasum -a 256</code>):</p>
+<pre><code>find . -type f -size +0c -exec sha256sum {} + | sort | awk '
+  $1 == prev { if (!shown) print prevline; print; shown = 1; next }
+  { if (shown) print ""; prev = $1; prevline = $0; shown = 0 }'</code></pre>
+<p>Output, one group per block (same hash = same content):</p>
+<pre><code>a5e10341fc2fa1cd28fc7036e7d23d46e04d66948c80d243ad425baf05cc7fe0  ./report copy.pdf
+a5e10341fc2fa1cd28fc7036e7d23d46e04d66948c80d243ad425baf05cc7fe0  ./report.pdf
+
+f318e36417590c104b60ea801214aff6fe53407e25c8439e392054e77b59d897  ./2024 trip/IMG_1001.jpg
+f318e36417590c104b60ea801214aff6fe53407e25c8439e392054e77b59d897  ./Phone backup/IMG_1001 (1).jpg
+f318e36417590c104b60ea801214aff6fe53407e25c8439e392054e77b59d897  ./Phone backup/IMG_1001.jpg</code></pre>
+<p>This one hashes every file, so it's slower than option 1 on a big library, but it needs nothing installed.</p>
+
+<h2>Option 3: Czkawka (free app, also finds similar photos)</h2>
+<p><a href="https://github.com/qarmin/czkawka">Czkawka</a> is a free, open-source app for Windows, macOS and Linux (its newer interface is called Krokiet). Besides exact duplicates it finds similar images, similar videos and empty folders. Download it from its official GitHub page.</p>
+
+<h2>Option 4: TidyBatch Pro (moves copies aside, with undo)</h2>
+<p><code>tidybatch dedupe</code> does the size → SHA-256 search, keeps the <strong>oldest</strong> copy of each file and moves the others into <code>_duplicates/</code>, keeping their folder structure so you can see where each one came from. Real output on the same test folder:</p>
+<pre><code>$ tidybatch dedupe ./Pictures -r
+  Phone backup/IMG_1001.jpg      -&gt;  _duplicates/Phone backup/IMG_1001.jpg
+  Phone backup/IMG_1001 (1).jpg  -&gt;  _duplicates/Phone backup/IMG_1001 (1).jpg
+  report copy.pdf                -&gt;  _duplicates/report copy.pdf
+
+3 file(s) would change.
+Dry run: nothing was changed. Add --apply to do it.</code></pre>
+<p>Add <code>--apply</code> to move them. Check <code>_duplicates/</code>, then delete it yourself, or put everything back with <code>tidybatch undo ./Pictures</code>. Nothing is ever deleted by the tool. <code>dedupe</code> is part of <a href="https://whop.com/tidybatch/bulk-file-renamer/?utm_source=site_guide_dupes&amp;utm_campaign=tidybatch">TidyBatch Pro</a> (one-time purchase, ready-to-run apps for Windows and Linux); options 1–3 are free.</p>
+
+<h2>Which copy should you keep?</h2>
+<ul>
+  <li><strong>The oldest</strong> (TidyBatch's default) is usually the original; later copies come from backups and re-downloads.</li>
+  <li><strong>The one in the "right" folder</strong>: if you have a main library, delete the copies outside it, not inside it.</li>
+  <li><strong>Careful with sync folders.</strong> Deleting a file inside Dropbox, OneDrive or iCloud Drive usually deletes it on every synced device too.</li>
+</ul>
+
+<h2>Which one should you use?</h2>
+<div class="table-wrap"><table>
+  <tr><th></th><th>PowerShell / terminal</th><th>TidyBatch Pro</th></tr>
+  <tr><td>Exact duplicates</td><td class="ok">✓ list only</td><td class="ok">✓</td></tr>
+  <tr><td>Moves the extra copies aside for you</td><td>— (you move them)</td><td class="ok">✓ <code>_duplicates/</code></td></tr>
+  <tr><td>Undo afterwards</td><td>—</td><td class="ok">✓ <code>tidybatch undo</code></td></tr>
+  <tr><td>Price</td><td>free, built in</td><td>paid, one-time</td></tr>
+</table></div>
+<p>For similar (edited or resized) photos, use Czkawka.</p>
+<p><a href="/guides/organize-downloads-folder/">Related: sort your Downloads folder by file type →</a></p>
+</div></main>
+<footer class="site"><div class="wrap">
+  <span>TidyBatch: small file tools you can trust.</span>
+  <span><a href="https://github.com/tidybatch/tidybatch">GitHub</a> · <a href="https://github.com/tidybatch/tidybatch/issues">Report a bug</a></span>
+</div></footer>
+</body>
+</html>

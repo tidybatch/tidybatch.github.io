@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How to organize your Downloads folder by file type (Windows, macOS, Linux) · TidyBatch</title>
+<meta name="description" content="Sort a messy Downloads folder into Images, Documents, Videos and more with a free PowerShell or bash script that previews first and never overwrites a file. Every command tested.">
+<link rel="canonical" href="https://tidybatch.github.io/guides/organize-downloads-folder/">
+<link rel="icon" href="/assets/avatar.png">
+<link rel="stylesheet" href="/assets/style.css">
+<meta property="og:title" content="How to organize your Downloads folder by file type">
+<meta property="og:image" content="https://tidybatch.github.io/assets/social.png">
+<meta name="twitter:card" content="summary_large_image">
+</head>
+<body>
+<header class="site"><div class="wrap">
+  <a class="brand" href="/"><img src="/assets/avatar.png" alt="">TidyBatch</a>
+  <nav><a href="/guides/">Guides</a><a href="https://github.com/tidybatch/tidybatch">GitHub</a><a href="https://whop.com/tidybatch/bulk-file-renamer/?utm_source=site_guide_organize&amp;utm_campaign=tidybatch">Pro</a></nav>
+</div></header>
+<main><div class="wrap">
+<h1>How to organize your Downloads folder by file type</h1>
+<p class="lead">Turn a Downloads folder with hundreds of loose files into <code>Images/</code>, <code>Documents/</code>, <code>Videos/</code>, <code>Spreadsheets/</code>, <code>Archives/</code> and <code>Installers/</code> in one go.</p>
+
+<div class="note"><strong>Two rules for any script that moves files:</strong> look at the plan before anything moves, and never let a file replace one that is already there (an older <code>Images/screenshot.png</code>, for example). Both scripts below follow them.</div>
+
+<h2>Windows: PowerShell (built in)</h2>
+<p>Open PowerShell, go to the folder with <code>cd $HOME\Downloads</code>, and paste this. As written it only <strong>shows the plan</strong>:</p>
+<pre><code>$preview = $true   # change to $false to actually move the files
+$types = @{
+  Images       = '.jpg', '.jpeg', '.png', '.gif', '.webp', '.heic'
+  Videos       = '.mp4', '.mov', '.mkv', '.avi'
+  Documents    = '.pdf', '.doc', '.docx', '.odt', '.txt'
+  Spreadsheets = '.xls', '.xlsx', '.ods', '.csv'
+  Archives     = '.zip', '.rar', '.7z'
+  Installers   = '.exe', '.msi'
+}
+Get-ChildItem -File | ForEach-Object {
+  $file = $_
+  $dir = $types.Keys | Where-Object { $types[$_] -contains $file.Extension } | Select-Object -First 1
+  if (-not $dir) { return }
+  if ($preview) { "$($file.Name)  -&gt;  $dir\" }
+  else {
+    New-Item -ItemType Directory -Force -Path $dir | Out-Null
+    Move-Item -LiteralPath $file.FullName -Destination $dir
+  }
+}</code></pre>
+<p>The plan looks like this (extensions match in any case, so <code>.JPG</code> counts as an image):</p>
+<pre><code>bank export.csv  -&gt;  Spreadsheets\
+clip.MP4  -&gt;  Videos\
+Holiday photo.JPG  -&gt;  Images\
+invoice.pdf  -&gt;  Documents\
+photos.zip  -&gt;  Archives\
+screenshot.png  -&gt;  Images\
+setup.exe  -&gt;  Installers\</code></pre>
+<p>Happy with it? Paste it again with <code>$preview = $false</code>. If a file with the same name is already in the target folder, <code>Move-Item</code> shows a red error for that file and leaves both files alone. Tested in PowerShell 7.4.</p>
+
+<h2>macOS and Linux: a small bash script</h2>
+<p>Save this as <code>organize.sh</code> in your home folder:</p>
+<pre><code>#!/usr/bin/env bash
+# Sort the files in the current folder into sub-folders by type.
+# "bash organize.sh" only shows the plan; "bash organize.sh apply" moves the files.
+shopt -s nocasematch
+for f in *; do
+  [ -f "$f" ] || continue
+  case "$f" in
+    *.jpg|*.jpeg|*.png|*.gif|*.webp|*.heic) dir=Images ;;
+    *.mp4|*.mov|*.mkv|*.avi)                dir=Videos ;;
+    *.pdf|*.doc|*.docx|*.odt|*.txt)         dir=Documents ;;
+    *.xls|*.xlsx|*.ods|*.csv)               dir=Spreadsheets ;;
+    *.zip|*.rar|*.7z|*.tar|*.gz)            dir=Archives ;;
+    *.exe|*.msi|*.dmg|*.pkg|*.deb)          dir=Installers ;;
+    *) continue ;;
+  esac
+  if [ "$1" = apply ]; then
+    mkdir -p "$dir" &amp;&amp; mv -n -- "$f" "$dir/"
+  else
+    echo "$f  -&gt;  $dir/"
+  fi
+done</code></pre>
+<p>Then run it from the folder you want to sort (on macOS run it with <code>bash</code> as shown, even though the default shell is zsh):</p>
+<pre><code>cd ~/Downloads
+bash ~/organize.sh          # preview
+bash ~/organize.sh apply    # move the files</code></pre>
+<p><code>mv -n</code> never overwrites: a file whose name is already taken in the target folder simply stays where it is, so anything left behind after the run is a name clash to check by hand.</p>
+
+<h2>Want an undo? TidyBatch Pro</h2>
+<p><code>tidybatch organize</code> does the same sort with a preview by default, gives clashing names a <code>_1</code> suffix instead of skipping them, puts unknown types in <code>Other/</code>, and records everything so one command puts it all back. Real output on the same test folder (which already had an <code>Images/screenshot.png</code>):</p>
+<pre><code>$ tidybatch organize ./Downloads
+  bank export.csv    -&gt;  Spreadsheets/bank export.csv
+  clip.MP4           -&gt;  Videos/clip.MP4
+  Holiday photo.JPG  -&gt;  Images/Holiday photo.JPG
+  invoice.pdf        -&gt;  Documents/invoice.pdf
+  notes              -&gt;  Other/notes
+  photos.zip         -&gt;  Archives/photos.zip
+  screenshot.png     -&gt;  Images/screenshot_1.png
+  setup.exe          -&gt;  Installers/setup.exe
+
+8 file(s) would change.
+Dry run: nothing was changed. Add --apply to do it.</code></pre>
+<p>Add <code>--apply</code> to do it, and <code>tidybatch undo ./Downloads</code> to restore every file to where it was (the folders it created are removed again). Other ways to sort:</p>
+<pre><code>tidybatch organize ./Downloads --by ext             # PDF/, JPG/, ZIP/ …
+tidybatch organize ./Archive --by date -r           # 2024/08/ by modified date
+tidybatch organize ./Camera --by taken -r           # 2023/07/ by photo date taken</code></pre>
+<p><code>organize</code> is part of <a href="https://whop.com/tidybatch/bulk-file-renamer/?utm_source=site_guide_organize&amp;utm_campaign=tidybatch">TidyBatch Pro</a> (one-time purchase, ready-to-run apps for Windows and Linux). The two scripts above are free.</p>
+
+<h2>Which one should you use?</h2>
+<div class="table-wrap"><table>
+  <tr><th></th><th>PowerShell / bash script</th><th>TidyBatch Pro</th></tr>
+  <tr><td>Preview before moving</td><td class="ok">✓</td><td class="ok">✓ default</td></tr>
+  <tr><td>Never overwrites</td><td class="ok">✓ clashes are skipped</td><td class="ok">✓ clashes get <code>_1</code></td></tr>
+  <tr><td>Undo afterwards</td><td>— (move back by hand)</td><td class="ok">✓ <code>tidybatch undo</code></td></tr>
+  <tr><td>By date, by photo date taken, by extension</td><td>edit the script</td><td class="ok">✓ <code>--by</code></td></tr>
+  <tr><td>Price</td><td>free</td><td>paid, one-time</td></tr>
+</table></div>
+<p><a href="/guides/find-duplicate-files/">Related: find duplicate files safely →</a></p>
+</div></main>
+<footer class="site"><div class="wrap">
+  <span>TidyBatch: small file tools you can trust.</span>
+  <span><a href="https://github.com/tidybatch/tidybatch">GitHub</a> · <a href="https://github.com/tidybatch/tidybatch/issues">Report a bug</a></span>
+</div></footer>
+</body>
+</html>
