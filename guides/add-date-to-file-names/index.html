@@ -51,7 +51,7 @@ exiftool -d '%Y-%m-%d_%H%M%S%%-c.%%e' '-FileName&lt;DateTimeOriginal' .</code></
 <pre><code>tidybatch rename ./invoices -t "{date:%Y-%m-%d}_{stem}{ext}"           # preview
 tidybatch rename ./invoices -t "{date:%Y-%m-%d}_{stem}{ext}" --apply   # apply
 tidybatch undo ./invoices                                             # revert</code></pre>
-<p>Other fields work too, e.g. a counter in date order: <code>tidybatch rename ./scans --sort date -t "scan_{n:03}{ext}"</code>. TidyBatch doesn't read EXIF yet, so for "date taken" use exiftool above.</p>
+<p>Other fields work too, e.g. a counter in date order: <code>tidybatch rename ./scans --sort date -t "scan_{n:03}{ext}"</code>. For photos, use <code>{taken}</code> instead of <code>{date}</code> to get the EXIF date taken: see <a href="/guides/rename-photos-by-date-taken/">rename photos by date taken</a>.</p>
 <p><a href="/guides/undo-bulk-rename/">Related: can you undo a bulk rename? →</a></p>
 </div></main>
 <footer class="site"><div class="wrap">

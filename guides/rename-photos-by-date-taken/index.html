@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How to rename photos by date taken (JPEG, HEIC, RAW) · TidyBatch</title>
+<meta name="description" content="Rename photos to the date they were taken (2023-07-14_182205.jpg) and sort them into year/month folders, with a preview first: exiftool and TidyBatch, for JPEG, iPhone HEIC and RAW files. Every command tested.">
+<link rel="canonical" href="https://tidybatch.github.io/guides/rename-photos-by-date-taken/">
+<link rel="icon" href="/assets/avatar.png">
+<link rel="stylesheet" href="/assets/style.css">
+<meta property="og:title" content="How to rename photos by date taken (JPEG, HEIC, RAW)">
+<meta property="og:image" content="https://tidybatch.github.io/assets/social.png">
+<meta name="twitter:card" content="summary_large_image">
+</head>
+<body>
+<header class="site"><div class="wrap">
+  <a class="brand" href="/"><img src="/assets/avatar.png" alt="">TidyBatch</a>
+  <nav><a href="/guides/">Guides</a><a href="https://github.com/tidybatch/tidybatch">GitHub</a><a href="https://whop.com/tidybatch/bulk-file-renamer/?utm_source=site_guide_taken&amp;utm_campaign=tidybatch">Pro</a></nav>
+</div></header>
+<main><div class="wrap">
+<h1>How to rename photos by date taken</h1>
+<p class="lead">Turn <code>IMG_4821.HEIC</code> and <code>DSC_0193.NEF</code> into <code>2023-07-14_182205.heic</code>, so photos from different cameras and phones sort into the order they were actually taken.</p>
+
+<div class="note"><strong>Use the "date taken", not the file date.</strong> Cameras and phones store the moment of capture inside the photo (EXIF <em>DateTimeOriginal</em>). The file's <em>modified</em> date changes when you copy, download or edit, so it's often wrong for old photos.</div>
+
+<h2>Option 1: ExifTool (free, every format)</h2>
+<p><a href="https://exiftool.org/">ExifTool</a> is the reference tool for photo metadata. Preview first with <code>TestName</code>, then apply with <code>FileName</code>. <code>%-c</code> adds <code>-1</code>, <code>-2</code>… when two photos share the same second (burst shots):</p>
+<pre><code># Preview
+exiftool -d '%Y-%m-%d_%H%M%S%%-c.%%e' '-TestName&lt;DateTimeOriginal' .
+
+# Apply
+exiftool -d '%Y-%m-%d_%H%M%S%%-c.%%e' '-FileName&lt;DateTimeOriginal' .</code></pre>
+<p>Sort into <code>2023/07/</code> folders instead (preview, then apply):</p>
+<pre><code>exiftool -d '%Y/%m/%%f.%%e' '-TestName&lt;DateTimeOriginal' .
+exiftool -d '%Y/%m' '-Directory&lt;DateTimeOriginal' .</code></pre>
+<p><strong>Videos</strong> keep their date in QuickTime metadata, usually stored in UTC. <code>-api QuickTimeUTC</code> converts it to your local time:</p>
+<pre><code>exiftool -api QuickTimeUTC -d '%Y-%m-%d_%H%M%S%%-c.%%e' '-TestName&lt;CreateDate' -ext mov -ext mp4 .</code></pre>
+
+<h2>Option 2: TidyBatch (free, with undo)</h2>
+<p><a href="https://github.com/tidybatch/tidybatch">TidyBatch</a>'s <code>{taken}</code> field reads the EXIF date taken from JPEG, iPhone HEIC, TIFF, DNG and RAW files (tested on CR2, CR3, NEF, RW2 and RAF), with no extra libraries. It previews by default and keeps a journal, so you can undo the whole batch later:</p>
+<pre><code># Preview
+tidybatch rename ./camera -t "{taken:%Y-%m-%d_%H%M%S}{ext}"
+#   Apple.jpg      -&gt;  2016-09-28_181805.jpg
+#   CanonRaw.cr3   -&gt;  2018-02-21_120856.cr3
+#   Nikon.nef      -&gt;  2004-06-09_160235.nef
+
+# Apply, and undo if you change your mind
+tidybatch rename ./camera -t "{taken:%Y-%m-%d_%H%M%S}{ext}" --apply
+tidybatch undo ./camera</code></pre>
+<p>Number a trip in the order the shots were taken, mixing phone and camera files:</p>
+<pre><code>tidybatch rename ./trip --sort taken -t "lisbon_{n:03}{ext}"</code></pre>
+<p>Two photos taken in the same second get <code>_1</code>, <code>_2</code> instead of overwriting each other. Files without an EXIF date (most videos, screenshots, scans) use the modified date instead, so for videos use the ExifTool command above. Sorting into year/month folders by date taken (<code>organize --by taken</code>) is part of <a href="https://whop.com/tidybatch/bulk-file-renamer/?utm_source=site_guide_taken&amp;utm_campaign=tidybatch">TidyBatch Pro</a>; the free ExifTool <code>-Directory</code> command above does the same.</p>
+
+<h2>Which one should you use?</h2>
+<div class="table-wrap"><table>
+  <tr><th></th><th>ExifTool</th><th>TidyBatch</th></tr>
+  <tr><td>Photos (JPEG, HEIC, RAW)</td><td class="ok">✓</td><td class="ok">✓</td></tr>
+  <tr><td>Videos' recorded date</td><td class="ok">✓</td><td>falls back to modified date</td></tr>
+  <tr><td>Preview before renaming</td><td class="ok">✓ <code>TestName</code></td><td class="ok">✓ default</td></tr>
+  <tr><td>Undo afterwards</td><td>—</td><td class="ok">✓ <code>tidybatch undo</code></td></tr>
+  <tr><td>Other fields (counters, regex, clean names)</td><td>via its own syntax</td><td class="ok">✓ one template</td></tr>
+</table></div>
+<p><a href="/guides/add-date-to-file-names/">Related: add the modified date to any file →</a></p>
+</div></main>
+<footer class="site"><div class="wrap">
+  <span>TidyBatch: small file tools you can trust.</span>
+  <span><a href="https://github.com/tidybatch/tidybatch">GitHub</a> · <a href="https://github.com/tidybatch/tidybatch/issues">Report a bug</a></span>
+</div></footer>
+</body>
+</html>
