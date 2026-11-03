@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>About TidyBatch: facts, license and how to check it yourself</title>
+<meta name="description" content="What TidyBatch is, its license, what it can touch, and how to check it on a throwaway folder before you trust it with real files.">
+<link rel="canonical" href="https://tidybatch.github.io/about/">
+<link rel="icon" href="/assets/avatar.png">
+<link rel="stylesheet" href="/assets/style.css">
+<meta property="og:title" content="About TidyBatch: facts, license and how to check it yourself">
+<meta property="og:description" content="What TidyBatch is, its license, what it can touch, and how to check it on a throwaway folder before you trust it with real files.">
+<meta property="og:url" content="https://tidybatch.github.io/about/">
+<meta property="og:image" content="https://tidybatch.github.io/assets/social.png">
+<meta name="twitter:card" content="summary_large_image">
+</head>
+<body>
+<header class="site"><div class="wrap">
+  <a class="brand" href="/"><img src="/assets/avatar.png" alt="">TidyBatch</a>
+  <nav><a href="/guides/">Guides</a><a href="https://github.com/tidybatch/tidybatch">GitHub</a><a href="https://whop.com/tidybatch/bulk-file-renamer/?utm_source=site_about&amp;utm_campaign=tidybatch">Pro</a></nav>
+</div></header>
+<main><div class="wrap">
+<h1>About TidyBatch</h1>
+<p class="lead">A command-line tool that renames files in bulk, shows you the result first, and can undo it. You are letting it touch your files, so here are the facts, and a way to check them yourself.</p>
+
+<h2>The facts</h2>
+<ul>
+  <li><strong>What it is:</strong> a command-line tool for bulk renaming. It has no graphical interface.</li>
+  <li><strong>Current version:</strong> 1.1.4 (<code>tidybatch --version</code> prints <code>tidybatch 1.1.4</code>).</li>
+  <li><strong>License:</strong> MIT. The free version (TidyBatch Core) is <a href="https://github.com/tidybatch/tidybatch">open source on GitHub</a>.</li>
+  <li><strong>Who makes it:</strong> the project is published under the name "TidyBatch". Most of the code was written with an AI coding agent. What protects your files (two-phase moves, collision checks, undo) is covered by a test suite that, according to the <a href="https://github.com/tidybatch/tidybatch#how-its-made">README</a>, runs on Linux, macOS and Windows on every push.</li>
+  <li><strong>Dependencies:</strong> none. It is one Python file and imports only modules from Python's standard library (<code>argparse</code>, <code>json</code>, <code>os</code>, <code>re</code>, <code>shutil</code>, <code>struct</code>, <code>sys</code>, <code>unicodedata</code>, <code>dataclasses</code>, <code>datetime</code>, <code>pathlib</code>, <code>typing</code>). It needs Python 3.9 or newer.</li>
+  <li><strong>Runs locally, no account:</strong> you don't sign in to use the free version. The file imports no networking module, so you can read it and confirm that for yourself.</li>
+  <li><strong>There is a paid version:</strong> TidyBatch Pro (9 €, one-time) adds <code>organize</code> and <code>dedupe</code>. Renaming and undo are in the free version. The <a href="https://github.com/tidybatch/tidybatch#free-this-repo-vs-pro">comparison table in the README</a> lists what each version does.</li>
+</ul>
+
+<h2>What it can touch</h2>
+<ul>
+  <li><strong>It changes nothing until you add <code>--apply</code>.</strong> Without it you get a preview.</li>
+  <li><strong>It works in the folder you give it.</strong> Files are renamed in place. The project's <a href="https://github.com/tidybatch/tidybatch/blob/main/SECURITY.md">security policy</a> treats "a move outside the folder you gave it" as a security bug.</li>
+  <li><strong>It writes a journal inside that folder</strong> (<code>.tidybatch/journal-*.json</code>), written before any file moves. That journal is what <code>tidybatch undo &lt;folder&gt;</code> reads.</li>
+</ul>
+
+<h2>Check it yourself in one minute</h2>
+<p>Use a throwaway folder, not your photos. These are the commands, run for this page, with their real output.</p>
+<p>Version:</p>
+<pre><code>$ python3 tidybatch.py --version
+tidybatch 1.1.4</code></pre>
+<p>Help. The last lines state what is in the paid version:</p>
+<pre><code>$ python3 tidybatch.py --help
+usage: tidybatch [-h] [--version] {rename,undo,organize,dedupe} ...
+
+Bulk rename files safely. Dry run by default; every change can be undone.
+
+positional arguments:
+  {rename,undo,organize,dedupe}
+    rename              rename files from a template
+    undo                revert the last applied run in a folder
+    organize            [Pro] sort files into folders
+    dedupe              [Pro] move exact duplicates aside
+
+options:
+  -h, --help            show this help message and exit
+  --version             show program's version number and exit
+
+Need to sort folders or remove duplicates? TidyBatch Pro adds `organize` and `dedupe`:
+  https://whop.com/tidybatch/bulk-file-renamer/?utm_source=cli&amp;utm_campaign=tidybatch</code></pre>
+<p>A preview on an empty temporary folder (nothing to rename, nothing changed):</p>
+<pre><code>$ mktemp -d
+/tmp/tmp.OuAd9WRlGS
+$ python3 tidybatch.py rename /tmp/tmp.OuAd9WRlGS --slug --lower
+Nothing to do: every file already matches.</code></pre>
+<p>To see a real preview, put a few copies of unimportant files in a temporary folder and run the same <code>rename</code> command on it. Then read <a href="/guides/undo-bulk-rename/">how undo works</a> or <a href="/guides/bulk-rename-files-safely/">how to bulk rename files safely</a>.</p>
+
+<h2>Reporting problems</h2>
+<p>Bugs: <a href="https://github.com/tidybatch/tidybatch/issues">GitHub issues</a>, with a folder layout that reproduces it. Anything that could lose or overwrite a file: report it privately, as described in <a href="https://github.com/tidybatch/tidybatch/blob/main/SECURITY.md">SECURITY.md</a>.</p>
+</div></main>
+<footer class="site"><div class="wrap">
+  <span>TidyBatch: small file tools you can trust.</span>
+  <span><a href="https://github.com/tidybatch/tidybatch">GitHub</a> · <a href="https://github.com/tidybatch/tidybatch/issues">Report a bug</a></span>
+</div></footer>
+</body>
+</html>
