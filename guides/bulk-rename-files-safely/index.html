@@ -50,7 +50,8 @@ Get-ChildItem -File *.jpg | Rename-Item -NewName { $_.Name.ToLower() -replace ' 
 <h3>Terminal</h3>
 <p>Use <code>mv -n</code> (no-clobber) in loops so an existing file is never overwritten, and print the commands before you run them:</p>
 <pre><code># Preview (echo only), then remove "echo" to run
-for f in *.JPG; do echo mv -n -- "$f" "${f%.JPG}.jpg"; done</code></pre>
+for f in *.jpeg; do echo mv -n -- "$f" "${f%.jpeg}.jpg"; done</code></pre>
+<parameter name="replace_all">false
 
 <h2>Linux</h2>
 <p>Most distributions ship a <code>rename</code> command, but there are two different ones (the Perl version and the util-linux version) with different syntax. Run <code>rename --version</code> to see which you have. Both have a dry-run flag, but the util-linux one only prints the plan if you add <code>-v</code>:</p>
@@ -64,7 +65,7 @@ rename -nv IMG_ photo_ *
 
 <h2 id="trap">The trap: chains silently overwrite files</h2>
 <p>Say you renumber <code>1.txt, 2.txt, 3.txt</code> to <code>2.txt, 3.txt, 4.txt</code>. A simple loop renames <code>1.txt → 2.txt</code> first. On Linux and macOS a plain <code>mv</code> or Python's <code>os.rename</code> <strong>overwrites the original 2.txt without warning</strong>. On Windows it fails instead, leaving the folder half renamed.</p>
-<p>The fix is to rename in two phases: move every file to a temporary name first, then move each one to its final name. Or rename into a new, empty folder. A related trap: on Windows and macOS, <code>Photo.JPG</code> and <code>photo.jpg</code> are the <em>same</em> file, so collision checks must ignore case.</p>
+<p>The fix is to rename in two phases: move every file to a temporary name first, then move each one to its final name. Or rename into a new, empty folder. A related trap: on Windows and macOS, <code>Photo.JPG</code> and <code>photo.jpg</code> are the <em>same</em> file, so collision checks must ignore case. It also means that on a default macOS disk a change that only alters case (<code>IMG.JPG</code> to <code>IMG.jpg</code>) is not a safe job for <code>mv -n</code>: it sees the target as already existing and skips it without an error. Do those in two steps, through a temporary name.</p>
 
 <h2>A tool that does all of this for you</h2>
 <p><a href="https://github.com/tidybatch/tidybatch">TidyBatch</a> is a free, open-source command-line tool built around these rules. It previews by default, renames in two phases, checks collisions without case and keeps a journal so you can undo with one command:</p>
