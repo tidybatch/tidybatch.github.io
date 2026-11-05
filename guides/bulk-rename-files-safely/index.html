@@ -51,7 +51,6 @@ Get-ChildItem -File *.jpg | Rename-Item -NewName { $_.Name.ToLower() -replace ' 
 <p>Use <code>mv -n</code> (no-clobber) in loops so an existing file is never overwritten, and print the commands before you run them:</p>
 <pre><code># Preview (echo only), then remove "echo" to run
 for f in *.jpeg; do echo mv -n -- "$f" "${f%.jpeg}.jpg"; done</code></pre>
-<parameter name="replace_all">false
 
 <h2>Linux</h2>
 <p>Most distributions ship a <code>rename</code> command, but there are two different ones (the Perl version and the util-linux version) with different syntax. Run <code>rename --version</code> to see which you have. Both have a dry-run flag, but the util-linux one only prints the plan if you add <code>-v</code>:</p>
