@@ -26,7 +26,7 @@
 <div class="note"><strong>First: stop.</strong> Don't rename, move or delete anything else in that folder. Most undo options only cover the <em>last</em> action.</div>
 
 <h2>1. Windows File Explorer: Ctrl+Z, right now</h2>
-<p>If the rename was done in File Explorer (or with PowerToys PowerRename, which renames through Explorer) and you haven't done anything else since, press <kbd>Ctrl</kbd>+<kbd>Z</kbd> in Explorer, or right-click and choose <em>Undo Rename</em>. Microsoft's own <a href="https://learn.microsoft.com/en-us/windows/powertoys/powerrename">PowerRename documentation</a> says this undoes the whole batch. The catch: only the most recent file operation can be undone. If you've done anything since, it's <a href="https://learn.microsoft.com/en-us/answers/questions/4544917/how-can-i-undue-an-accidental-mass-name-change-to">probably too late</a>.</p>
+<p>If the rename was done in File Explorer (or with PowerToys PowerRename, which renames through Explorer) and you haven't done anything else since, press <kbd>Ctrl</kbd>+<kbd>Z</kbd> in Explorer, or right-click and choose <em>Undo Rename</em>. Microsoft's own <a href="https://learn.microsoft.com/en-us/windows/powertoys/powerrename">PowerRename documentation</a> says this undoes the whole batch. The catch: undo covers your latest actions, so the sooner the better. A <a href="https://learn.microsoft.com/en-us/answers/questions/4544917/how-can-i-undue-an-accidental-mass-name-change-to">Microsoft Q&amp;A answer</a> warns that if you've done anything since, it's probably too late.</p>
 
 <h2>2. macOS Finder: Edit → Undo</h2>
 <p>Right after a Finder rename, <em>Edit → Undo</em> (<kbd>⌘</kbd>+<kbd>Z</kbd>) reverses it. Again, it only works while it's still the last action.</p>
@@ -53,7 +53,7 @@
 <pre><code>tidybatch rename ./photos -t "holiday_{n:03}{ext}" --apply
 # ...days later...
 tidybatch undo ./photos      # every file goes back to its original name</code></pre>
-<p>Other open-source CLIs with undo history include <a href="https://github.com/neurobin/rnm">rnm</a> and <a href="https://github.com/tareqimbasher/renamex">renamex</a>.</p>
+<p>Other command-line tools with undo history include <a href="https://github.com/neurobin/rnm">rnm</a> and <a href="https://github.com/tareqimbasher/renamex">renamex</a>.</p>
 <p>Need to sort files into folders or move duplicates aside? <a href="https://whop.com/tidybatch/bulk-file-renamer/?utm_source=site_guide_undo&amp;utm_campaign=tidybatch">TidyBatch Pro</a> adds <code>organize</code> and <code>dedupe</code>, both with undo: 9 €, one time. Renaming and undo are free.</p>
 <p><a href="/guides/bulk-rename-files-safely/">Next: how to bulk rename files safely →</a></p>
 </div></main>

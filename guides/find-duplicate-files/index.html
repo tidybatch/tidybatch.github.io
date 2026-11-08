@@ -28,7 +28,7 @@
 <h2>How exact duplicate finders work</h2>
 <p>Two files are duplicates when their <em>contents</em> are identical, whatever their names or dates. The fast way to find them:</p>
 <ol>
-  <li><strong>Group by size.</strong> A file with a unique size can't have a duplicate, so most files are never read.</li>
+  <li><strong>Group by size.</strong> A file with a unique size can't have a duplicate, so those files never need to be read in full.</li>
   <li><strong>Hash the rest</strong> (SHA-256). Same hash means same content.</li>
   <li><strong>Skip empty files.</strong> They all "match" each other.</li>
 </ol>
