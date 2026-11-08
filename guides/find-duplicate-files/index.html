@@ -49,12 +49,12 @@
   $1 == prev { if (!shown) print prevline; print; shown = 1; next }
   { if (shown) print ""; prev = $1; prevline = $0; shown = 0 }'</code></pre>
 <p>Output, one group per block (same hash = same content):</p>
-<pre><code>a5e10341fc2fa1cd28fc7036e7d23d46e04d66948c80d243ad425baf05cc7fe0  ./report copy.pdf
-a5e10341fc2fa1cd28fc7036e7d23d46e04d66948c80d243ad425baf05cc7fe0  ./report.pdf
+<pre><code>a2d8bc4b71a8bda6664083d9e651006735f3f2de5ac2ec666da6680ec3ec898d  ./report copy.pdf
+a2d8bc4b71a8bda6664083d9e651006735f3f2de5ac2ec666da6680ec3ec898d  ./report.pdf
 
-f318e36417590c104b60ea801214aff6fe53407e25c8439e392054e77b59d897  ./2024 trip/IMG_1001.jpg
-f318e36417590c104b60ea801214aff6fe53407e25c8439e392054e77b59d897  ./Phone backup/IMG_1001 (1).jpg
-f318e36417590c104b60ea801214aff6fe53407e25c8439e392054e77b59d897  ./Phone backup/IMG_1001.jpg</code></pre>
+e7acbb47ebdac0bbd1f57be9da7c28ca4d64612bc9f3978f7bd2c85a41c3b876  ./2024 trip/IMG_1001.jpg
+e7acbb47ebdac0bbd1f57be9da7c28ca4d64612bc9f3978f7bd2c85a41c3b876  ./Phone backup/IMG_1001 (1).jpg
+e7acbb47ebdac0bbd1f57be9da7c28ca4d64612bc9f3978f7bd2c85a41c3b876  ./Phone backup/IMG_1001.jpg</code></pre>
 <p>This one hashes every file, so it's slower than option 1 on a big library, but it needs nothing installed.</p>
 
 <h2>Option 3: Czkawka (free app, also finds similar photos)</h2>
