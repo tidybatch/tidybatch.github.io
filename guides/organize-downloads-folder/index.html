@@ -55,7 +55,7 @@ done</code></pre>
 <pre><code>cd ~/Downloads
 bash ~/organize.sh          # preview
 bash ~/organize.sh apply    # move the files</code></pre>
-<p><code>mv -n</code> never overwrites: a file whose name is already taken in the target folder simply stays where it is, so anything left behind after the run is a name clash to check by hand.</p>
+<p><code>mv -n</code> never overwrites: a file whose name is already taken in the target folder simply stays where it is, so anything left behind is either a name clash or a type the script doesn't sort (like <code>notes</code>, with no extension).</p>
 
 <h2>Want an undo? TidyBatch Pro</h2>
 <p><code>tidybatch organize</code> does the same sort with a preview by default, gives clashing names a <code>_1</code> suffix instead of skipping them, puts unknown types in <code>Other/</code>, and records everything so one command puts it all back. Real output on the same test folder (which already had an <code>Images/screenshot.png</code>):</p>
